@@ -31,7 +31,7 @@ An SPI chip which is bigger than 16Mbytes will not let board bootup after softwa
 
 After switching to 4-byte addressing, and issuing a reboot, Rockchip BootROM tries to talk to SPI using 3-byte addressing bus which fails and then boot stops in MASKROM mode. It happens only in warm reboot. Cold reboot resets SPI registers and everything is ok.
 
-Second disaster i was fighting with was a situation when connected UART USB was powering board (with USB-C power disconnected) enough to no let SPI registers reset. So i also had problems with cold-reboots when i was diagnosing this situation. Beaware of rockchip lack of documentation and wasted time.
+Second disaster i was fighting with was a situation when connected UART USB was powering board (with USB-C power disconnected) enough to not let SPI registers reset. So i also had problems with cold-reboots when i was diagnosing this situation. Beaware of rockchip lack of documentation and wasted time.
 
 In order to support >16MBytes SPI Flash chip, the following patches must be applied:
 
