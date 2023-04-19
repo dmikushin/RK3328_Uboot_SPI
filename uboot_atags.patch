@@ -1,0 +1,78 @@
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index cac4fa09fd..58b0cc78e9 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -2056,8 +2056,8 @@ endchoice
+ 
+ config SUPPORT_PASSING_ATAGS
+ 	bool "Support pre-devicetree ATAG-based booting"
+-	depends on !ARM64
+-	imply SETUP_MEMORY_TAGS
++	depends on ARM || ARM64
++    imply SETUP_MEMORY_TAGS
+ 	help
+ 	  Support for booting older Linux kernels, using ATAGs rather than
+ 	  passing a devicetree.  This is option is rarely used, and the
+diff --git a/arch/arm/include/asm/bootm.h b/arch/arm/include/asm/bootm.h
+index 439e43c2d0..6e27c84cbf 100644
+--- a/arch/arm/include/asm/bootm.h
++++ b/arch/arm/include/asm/bootm.h
+@@ -16,6 +16,10 @@ extern void udc_disconnect(void);
+ # define BOOTM_ENABLE_TAGS		0
+ #endif
+ 
++#ifndef CONFIG_SUPPORT_PASSING_ATAGS
++#error
++#endif
++
+ #ifdef CONFIG_SETUP_MEMORY_TAGS
+ # define BOOTM_ENABLE_MEMORY_TAGS	1
+ #else
+diff --git a/arch/arm/lib/bootm.c b/arch/arm/lib/bootm.c
+index e414ef8267..bb95b1965d 100644
+--- a/arch/arm/lib/bootm.c
++++ b/arch/arm/lib/bootm.c
+@@ -199,12 +199,18 @@ static void boot_prep_linux(struct bootm_headers *images)
+ {
+ 	char *commandline = env_get("bootargs");
+ 
++    int fdt_or_tags_enabled = 0;
+ 	if (CONFIG_IS_ENABLED(OF_LIBFDT) && CONFIG_IS_ENABLED(LMB) && images->ft_len) {
+ 		debug("using: FDT\n");
+ 		if (image_setup_linux(images)) {
+ 			panic("FDT creation failed!");
+ 		}
+-	} else if (BOOTM_ENABLE_TAGS) {
++        fdt_or_tags_enabled++;
++	}
++#if !BOOTM_ENABLE_TAGS
++#error
++#endif
++    if (BOOTM_ENABLE_TAGS) {
+ 		debug("using: ATAGS\n");
+ 		setup_start_tag(gd->bd);
+ 		if (BOOTM_ENABLE_SERIAL_TAG)
+@@ -233,7 +239,9 @@ static void boot_prep_linux(struct bootm_headers *images)
+ 		}
+ 		setup_board_tags(&params);
+ 		setup_end_tag(gd->bd);
+-	} else {
++        fdt_or_tags_enabled++;
++	}
++    if (!fdt_or_tags_enabled) {
+ 		panic("FDT and ATAGS support not compiled in\n");
+ 	}
+ 
+diff --git a/include/common.h b/include/common.h
+index 25c317f443..ee7daaeaef 100644
+--- a/include/common.h
++++ b/include/common.h
+@@ -12,6 +12,8 @@
+ #ifndef __COMMON_H_
+ #define __COMMON_H_	1
+ 
++#define LOG_DEBUG
++
+ #ifndef __ASSEMBLY__		/* put C only stuff in this section */
+ #include <config.h>
+ #include <errno.h>

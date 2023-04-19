@@ -76,6 +76,8 @@ CONFIG_SPI_FLASH_WINBOND=y
 CONFIG_SPI_FLASH_MTD=y
 CONFIG_ROCKCHIP_SPI=y
 CONFIG_SPL_LZMA=y
+CONFIG_SUPPORT_PASSING_ATAGS=y
+CONFIG_INITRD_TAG=y
 EOF
 
 RUN cat .config_extra | sed 's|=.*|=|' | xargs -I{} sed -i 's|{}.*||' .config
@@ -132,6 +134,9 @@ RUN ./tools/mkimage -n rk3328 -T rksd -d tpl/u-boot-tpl.bin idbloader.img
 #EOF
 #COPY uboot_debug.patch /uboot_debug.patch
 #RUN patch -p1 < /uboot_debug.patch
+
+COPY uboot_atags.patch /uboot_atags.patch
+RUN patch -p1 < /uboot_atags.patch
 
 RUN BL31=/bl31.elf make CROSS_COMPILE=aarch64-linux-gnu- u-boot.itb
 
