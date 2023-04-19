@@ -75,6 +75,7 @@ CONFIG_DM_MTD=y
 CONFIG_SPI_FLASH_WINBOND=y
 CONFIG_SPI_FLASH_MTD=y
 CONFIG_ROCKCHIP_SPI=y
+CONFIG_SPL_LZMA=y
 EOF
 
 RUN cat .config_extra | sed 's|=.*|=|' | xargs -I{} sed -i 's|{}.*||' .config
