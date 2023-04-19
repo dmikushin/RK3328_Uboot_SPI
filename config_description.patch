@@ -1,0 +1,60 @@
+From 070915079bd0b11471fdd0e6be1738546a439f93 Mon Sep 17 00:00:00 2001
+From: Ognjen Marinkovic <pingvincar@gmail.com>
+Date: Wed, 19 Apr 2023 02:26:53 +0200
+Subject: [PATCH] Added CONFIG_DESCRIPTION option for defconfig
+
+---
+ common/board_f.c      | 4 ++++
+ common/description.c  | 7 +++++++
+ include/description.h | 1 +
+ 3 files changed, 12 insertions(+)
+ create mode 100644 common/description.c
+ create mode 100644 include/description.h
+
+diff --git a/common/board_f.c b/common/board_f.c
+index 1688e27071..95d6a90d1f 100644
+--- a/common/board_f.c
++++ b/common/board_f.c
+@@ -49,6 +49,7 @@
+ #include <dm/root.h>
+ #include <linux/errno.h>
+ #include <linux/log2.h>
++#include <description.h>
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+@@ -887,6 +888,9 @@ static const init_fnc_t init_sequence_f[] = {
+ #endif
+ #if defined(CONFIG_DISPLAY_BOARDINFO)
+ 	show_board_info,
++#endif
++#if definef(CONFIG_DESCRIPTION)
++	show_description,
+ #endif
+ 	INIT_FUNC_WATCHDOG_INIT
+ 	misc_init_f,
+diff --git a/common/description.c b/common/description.c
+new file mode 100644
+index 0000000000..edfa39c1e3
+--- /dev/null
++++ b/common/description.c
+@@ -0,0 +1,7 @@
++#include <description.h>
++
++void show_description(void) {
++#if defined(CONFIG_DESCRIPTION)
++    printf("Description: "CONFIG_DESCRIPTION);
++#endif
++}
+\ No newline at end of file
+diff --git a/include/description.h b/include/description.h
+new file mode 100644
+index 0000000000..25f5666d5e
+--- /dev/null
++++ b/include/description.h
+@@ -0,0 +1 @@
++void show_description(void);
+\ No newline at end of file
+-- 
+2.40.0
+
