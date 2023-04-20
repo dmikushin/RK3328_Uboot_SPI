@@ -76,6 +76,8 @@ CONFIG_SPI_FLASH_WINBOND=y
 CONFIG_SPI_FLASH_MTD=y
 CONFIG_ROCKCHIP_SPI=y
 CONFIG_SPL_LZMA=y
+CONFIG_CMD_WGET=y
+CONFIG_PROT_TCP_SACK=y
 EOF
 
 RUN cat .config_extra | sed 's|=.*|=|' | xargs -I{} sed -i 's|{}.*||' .config
