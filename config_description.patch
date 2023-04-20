@@ -1,102 +1,3 @@
-From 070915079bd0b11471fdd0e6be1738546a439f93 Mon Sep 17 00:00:00 2001
-From: Ognjen Marinkovic <pingvincar@gmail.com>
-Date: Wed, 19 Apr 2023 02:26:53 +0200
-Subject: [PATCH 1/5] Added CONFIG_DESCRIPTION option for defconfig
-
----
- common/board_f.c      | 4 ++++
- common/description.c  | 7 +++++++
- include/description.h | 1 +
- 3 files changed, 12 insertions(+)
- create mode 100644 common/description.c
- create mode 100644 include/description.h
-
-diff --git a/common/board_f.c b/common/board_f.c
-index 1688e27071..95d6a90d1f 100644
---- a/common/board_f.c
-+++ b/common/board_f.c
-@@ -49,6 +49,7 @@
- #include <dm/root.h>
- #include <linux/errno.h>
- #include <linux/log2.h>
-+#include <description.h>
- 
- DECLARE_GLOBAL_DATA_PTR;
- 
-@@ -887,6 +888,9 @@ static const init_fnc_t init_sequence_f[] = {
- #endif
- #if defined(CONFIG_DISPLAY_BOARDINFO)
- 	show_board_info,
-+#endif
-+#if definef(CONFIG_DESCRIPTION)
-+	show_description,
- #endif
- 	INIT_FUNC_WATCHDOG_INIT
- 	misc_init_f,
-diff --git a/common/description.c b/common/description.c
-new file mode 100644
-index 0000000000..edfa39c1e3
---- /dev/null
-+++ b/common/description.c
-@@ -0,0 +1,7 @@
-+#include <description.h>
-+
-+void show_description(void) {
-+#if defined(CONFIG_DESCRIPTION)
-+    printf("Description: "CONFIG_DESCRIPTION);
-+#endif
-+}
-\ No newline at end of file
-diff --git a/include/description.h b/include/description.h
-new file mode 100644
-index 0000000000..25f5666d5e
---- /dev/null
-+++ b/include/description.h
-@@ -0,0 +1 @@
-+void show_description(void);
-\ No newline at end of file
--- 
-2.40.0
-
-
-From 247262e05fac245e1952ca7e7820c386617cbd6a Mon Sep 17 00:00:00 2001
-From: Ognjen Marinkovic <pingvincar@gmail.com>
-Date: Wed, 19 Apr 2023 12:21:20 +0200
-Subject: [PATCH 2/5] fixed typo definef -> defined
-
----
- common/board_f.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/common/board_f.c b/common/board_f.c
-index 95d6a90d1f..a7c9499f11 100644
---- a/common/board_f.c
-+++ b/common/board_f.c
-@@ -889,7 +889,7 @@ static const init_fnc_t init_sequence_f[] = {
- #if defined(CONFIG_DISPLAY_BOARDINFO)
- 	show_board_info,
- #endif
--#if definef(CONFIG_DESCRIPTION)
-+#if defined(CONFIG_DESCRIPTION)
- 	show_description,
- #endif
- 	INIT_FUNC_WATCHDOG_INIT
--- 
-2.40.0
-
-
-From 9d882de1ad950b8f82f845f3e436dff21193fbed Mon Sep 17 00:00:00 2001
-From: Ognjen Marinkovic <pingvincar@gmail.com>
-Date: Thu, 20 Apr 2023 17:35:00 +0200
-Subject: [PATCH 3/5] Added DESCRIPTION to Kconfig and the appropriate object
- goal to make file. Added newline in show_description().
-
----
- common/Kconfig       | 7 +++++++
- common/Makefile      | 1 +
- common/description.c | 2 +-
- 3 files changed, 9 insertions(+), 1 deletion(-)
-
 diff --git a/common/Kconfig b/common/Kconfig
 index f2783ee65d..c1a86078f9 100644
 --- a/common/Kconfig
@@ -116,82 +17,58 @@ index f2783ee65d..c1a86078f9 100644
  
  config CYCLIC
 diff --git a/common/Makefile b/common/Makefile
-index a50302d8b5..8edaf18143 100644
+index a50302d8b5..a3477ebe2a 100644
 --- a/common/Makefile
 +++ b/common/Makefile
 @@ -69,6 +69,7 @@ obj-$(CONFIG_TPL_SERIAL) += console.o
  else
  obj-$(CONFIG_SPL_SERIAL) += console.o
  endif
-+obj-$(CONFIG_DESCRIPTION) += description.o
- else
- obj-y += console.o
- endif # CONFIG_SPL_BUILD
-diff --git a/common/description.c b/common/description.c
-index edfa39c1e3..b7c3e0f5a8 100644
---- a/common/description.c
-+++ b/common/description.c
-@@ -2,6 +2,6 @@
- 
- void show_description(void) {
- #if defined(CONFIG_DESCRIPTION)
--    printf("Description: "CONFIG_DESCRIPTION);
-+    printf("Description: "CONFIG_DESCRIPTION "\n");
- #endif
- }
-\ No newline at end of file
--- 
-2.40.0
-
-
-From b8ee2c78ae43cc7d8f11a500689568e3ff47cc8c Mon Sep 17 00:00:00 2001
-From: Ognjen Marinkovic <pingvincar@gmail.com>
-Date: Thu, 20 Apr 2023 17:47:49 +0200
-Subject: [PATCH 4/5] Fixed mistake in Makefile
-
----
- common/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/common/Makefile b/common/Makefile
-index 8edaf18143..1429dac70a 100644
---- a/common/Makefile
-+++ b/common/Makefile
-@@ -69,7 +69,7 @@ obj-$(CONFIG_TPL_SERIAL) += console.o
- else
- obj-$(CONFIG_SPL_SERIAL) += console.o
- endif
--obj-$(CONFIG_DESCRIPTION) += description.o
-+obj-m += description.o
- else
- obj-y += console.o
- endif # CONFIG_SPL_BUILD
--- 
-2.40.0
-
-
-From 793ec1beab6df7bc561e40adae3f03a496ae0000 Mon Sep 17 00:00:00 2001
-From: Ognjen Marinkovic <pingvincar@gmail.com>
-Date: Thu, 20 Apr 2023 17:49:18 +0200
-Subject: [PATCH 5/5] Fixed another mistake in Makefile (m to y)
-
----
- common/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/common/Makefile b/common/Makefile
-index 1429dac70a..a3477ebe2a 100644
---- a/common/Makefile
-+++ b/common/Makefile
-@@ -69,7 +69,7 @@ obj-$(CONFIG_TPL_SERIAL) += console.o
- else
- obj-$(CONFIG_SPL_SERIAL) += console.o
- endif
--obj-m += description.o
 +obj-y += description.o
  else
  obj-y += console.o
  endif # CONFIG_SPL_BUILD
--- 
-2.40.0
-
+diff --git a/common/board_f.c b/common/board_f.c
+index 1688e27071..a7c9499f11 100644
+--- a/common/board_f.c
++++ b/common/board_f.c
+@@ -49,6 +49,7 @@
+ #include <dm/root.h>
+ #include <linux/errno.h>
+ #include <linux/log2.h>
++#include <description.h>
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+@@ -887,6 +888,9 @@ static const init_fnc_t init_sequence_f[] = {
+ #endif
+ #if defined(CONFIG_DISPLAY_BOARDINFO)
+ 	show_board_info,
++#endif
++#if defined(CONFIG_DESCRIPTION)
++	show_description,
+ #endif
+ 	INIT_FUNC_WATCHDOG_INIT
+ 	misc_init_f,
+diff --git a/common/description.c b/common/description.c
+new file mode 100644
+index 0000000000..b7c3e0f5a8
+--- /dev/null
++++ b/common/description.c
+@@ -0,0 +1,7 @@
++#include <description.h>
++
++void show_description(void) {
++#if defined(CONFIG_DESCRIPTION)
++    printf("Description: "CONFIG_DESCRIPTION "\n");
++#endif
++}
+\ No newline at end of file
+diff --git a/include/description.h b/include/description.h
+new file mode 100644
+index 0000000000..25f5666d5e
+--- /dev/null
++++ b/include/description.h
+@@ -0,0 +1 @@
++void show_description(void);
+\ No newline at end of file
