@@ -1,7 +1,7 @@
 From 070915079bd0b11471fdd0e6be1738546a439f93 Mon Sep 17 00:00:00 2001
 From: Ognjen Marinkovic <pingvincar@gmail.com>
 Date: Wed, 19 Apr 2023 02:26:53 +0200
-Subject: [PATCH 1/2] Added CONFIG_DESCRIPTION option for defconfig
+Subject: [PATCH 1/3] Added CONFIG_DESCRIPTION option for defconfig
 
 ---
  common/board_f.c      | 4 ++++
@@ -62,7 +62,7 @@ index 0000000000..25f5666d5e
 From 247262e05fac245e1952ca7e7820c386617cbd6a Mon Sep 17 00:00:00 2001
 From: Ognjen Marinkovic <pingvincar@gmail.com>
 Date: Wed, 19 Apr 2023 12:21:20 +0200
-Subject: [PATCH 2/2] fixed typo definef -> defined
+Subject: [PATCH 2/3] fixed typo definef -> defined
 
 ---
  common/board_f.c | 2 +-
@@ -81,6 +81,65 @@ index 95d6a90d1f..a7c9499f11 100644
  	show_description,
  #endif
  	INIT_FUNC_WATCHDOG_INIT
+-- 
+2.40.0
+
+
+From 9d882de1ad950b8f82f845f3e436dff21193fbed Mon Sep 17 00:00:00 2001
+From: Ognjen Marinkovic <pingvincar@gmail.com>
+Date: Thu, 20 Apr 2023 17:35:00 +0200
+Subject: [PATCH 3/3] Added DESCRIPTION to Kconfig and the appropriate object
+ goal to make file. Added newline in show_description().
+
+---
+ common/Kconfig       | 7 +++++++
+ common/Makefile      | 1 +
+ common/description.c | 2 +-
+ 3 files changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/common/Kconfig b/common/Kconfig
+index f2783ee65d..c1a86078f9 100644
+--- a/common/Kconfig
++++ b/common/Kconfig
+@@ -580,6 +580,13 @@ config DISPLAY_BOARDINFO_LATE
+ 	  the relocation phase. The board function checkboard() is called to do
+ 	  this.
+ 
++config DESCRIPTION
++	string "Display a short description during early start up"
++	help
++	  Display a short description when U-Boot starts up. The function 
++	  show_description() is called to do this.
++	  
++
+ menu "Start-up hooks"
+ 
+ config CYCLIC
+diff --git a/common/Makefile b/common/Makefile
+index a50302d8b5..8edaf18143 100644
+--- a/common/Makefile
++++ b/common/Makefile
+@@ -69,6 +69,7 @@ obj-$(CONFIG_TPL_SERIAL) += console.o
+ else
+ obj-$(CONFIG_SPL_SERIAL) += console.o
+ endif
++obj-$(CONFIG_DESCRIPTION) += description.o
+ else
+ obj-y += console.o
+ endif # CONFIG_SPL_BUILD
+diff --git a/common/description.c b/common/description.c
+index edfa39c1e3..b7c3e0f5a8 100644
+--- a/common/description.c
++++ b/common/description.c
+@@ -2,6 +2,6 @@
+ 
+ void show_description(void) {
+ #if defined(CONFIG_DESCRIPTION)
+-    printf("Description: "CONFIG_DESCRIPTION);
++    printf("Description: "CONFIG_DESCRIPTION "\n");
+ #endif
+ }
+\ No newline at end of file
 -- 
 2.40.0
 
