@@ -1,8 +1,8 @@
 diff --git a/common/Kconfig b/common/Kconfig
-index f2783ee65d..c1a86078f9 100644
+index 21434c5cf1..7eb5b238b6 100644
 --- a/common/Kconfig
 +++ b/common/Kconfig
-@@ -580,6 +580,13 @@ config DISPLAY_BOARDINFO_LATE
+@@ -571,6 +571,13 @@ config DISPLAY_BOARDINFO_LATE
  	  the relocation phase. The board function checkboard() is called to do
  	  this.
  
@@ -17,19 +17,35 @@ index f2783ee65d..c1a86078f9 100644
  
  config CYCLIC
 diff --git a/common/Makefile b/common/Makefile
-index a50302d8b5..a3477ebe2a 100644
+index 20addfb244..facd3fb22c 100644
 --- a/common/Makefile
 +++ b/common/Makefile
-@@ -69,6 +69,7 @@ obj-$(CONFIG_TPL_SERIAL) += console.o
- else
- obj-$(CONFIG_SPL_SERIAL) += console.o
- endif
+@@ -39,6 +39,7 @@ obj-$(CONFIG_MENU) += menu.o
+ obj-$(CONFIG_UPDATE_COMMON) += update.o
+ obj-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
+ obj-$(CONFIG_CMDLINE) += cli_readline.o cli_simple.o
 +obj-y += description.o
- else
- obj-y += console.o
- endif # CONFIG_SPL_BUILD
+ 
+ endif # !CONFIG_SPL_BUILD
+ 
+diff --git a/common/Makefile.rej b/common/Makefile.rej
+new file mode 100644
+index 0000000000..0d39f65063
+--- /dev/null
++++ b/common/Makefile.rej
+@@ -0,0 +1,10 @@
++--- common/Makefile
+++++ common/Makefile
++@@ -40,6 +40,7 @@ obj-$(CONFIG_MENU) += menu.o
++ obj-$(CONFIG_UPDATE_COMMON) += update.o
++ obj-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
++ obj-$(CONFIG_CMDLINE) += cli_getch.o cli_readline.o cli_simple.o
+++obj-y += description.o
++ 
++ endif # !CONFIG_SPL_BUILD
++ 
 diff --git a/common/board_f.c b/common/board_f.c
-index 1688e27071..a7c9499f11 100644
+index e6117a7ba5..eb7fa8ac7e 100644
 --- a/common/board_f.c
 +++ b/common/board_f.c
 @@ -49,6 +49,7 @@
@@ -40,7 +56,7 @@ index 1688e27071..a7c9499f11 100644
  
  DECLARE_GLOBAL_DATA_PTR;
  
-@@ -887,6 +888,9 @@ static const init_fnc_t init_sequence_f[] = {
+@@ -884,6 +885,9 @@ static const init_fnc_t init_sequence_f[] = {
  #endif
  #if defined(CONFIG_DISPLAY_BOARDINFO)
  	show_board_info,
