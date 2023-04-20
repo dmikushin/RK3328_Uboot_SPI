@@ -46,8 +46,13 @@ RUN git clone https://source.denx.de/u-boot/u-boot.git
 
 WORKDIR /u-boot
 
-RUN git checkout v2023.01 && \
-    make nanopi-r2s-rk3328_defconfig
+RUN git checkout v2023.01
+
+###############################################################################
+
+FROM u-boot as u-boot-spi
+
+RUN make nanopi-r2s-rk3328_defconfig
 
 RUN <<EOF cat >> .config_extra
 CONFIG_ROCKCHIP_EFUSE=y
@@ -137,11 +142,20 @@ RUN BL31=/bl31.elf make CROSS_COMPILE=aarch64-linux-gnu- u-boot.itb
 
 ###############################################################################
 
+FROM u-boot as u-boot-qemu
+
+RUN make qemu_arm64_defconfig
+
+RUN make CROSS_COMPILE=aarch64-linux-gnu- -j4
+
+###############################################################################
+
 FROM ubuntu:22.04
 
-COPY --from=u-boot /u-boot/idbloader.img /
-COPY --from=u-boot /u-boot/spl/u-boot-spl.bin /
-COPY --from=u-boot /u-boot/u-boot.itb /
+COPY --from=u-boot-spi /u-boot/idbloader.img /
+COPY --from=u-boot-spi /u-boot/spl/u-boot-spl.bin /
+COPY --from=u-boot-spi /u-boot/u-boot.itb /
+COPY --from=u-boot-qemu /u-boot/u-boot.bin /u-boot-qemu.bin
 
 # Note: we write u-boot.itb twice, because on SD card
 # it will be searched for at block 16384

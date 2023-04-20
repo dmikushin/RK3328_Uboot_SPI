@@ -387,3 +387,20 @@ saveenv
 
 5. Reboot. The board should boot the kernel.
 
+Testing in Qemu
+===============
+
+From the Docker container abive get the U-boot variant compiled for Qemu:
+
+```
+bash -c 'docker run --rm -v $(pwd):$(pwd) rk3328-uboot-spi cp /u-boot-qemu.bin $(pwd)/'
+```
+
+Launch Qemu emulation:
+
+```
+qemu-system-aarch64 -curses -machine virt -cpu cortex-a53 -bios u-boot-qemu.bin
+```
+
+Press Esc + 2 to show u-boot command line.
+
