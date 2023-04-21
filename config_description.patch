@@ -1,0 +1,75 @@
+diff --git a/common/Kconfig b/common/Kconfig
+index 21434c5cf1..1f3e63cf92 100644
+--- a/common/Kconfig
++++ b/common/Kconfig
+@@ -571,6 +571,10 @@ config DISPLAY_BOARDINFO_LATE
+ 	  the relocation phase. The board function checkboard() is called to do
+ 	  this.
+ 
++config DESCRIPTION
++	string "Display description during early start up"
++
++
+ menu "Start-up hooks"
+ 
+ config CYCLIC
+diff --git a/common/Makefile b/common/Makefile
+index 20addfb244..facd3fb22c 100644
+--- a/common/Makefile
++++ b/common/Makefile
+@@ -39,6 +39,7 @@ obj-$(CONFIG_MENU) += menu.o
+ obj-$(CONFIG_UPDATE_COMMON) += update.o
+ obj-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
+ obj-$(CONFIG_CMDLINE) += cli_readline.o cli_simple.o
++obj-y += description.o
+ 
+ endif # !CONFIG_SPL_BUILD
+ 
+diff --git a/common/board_f.c b/common/board_f.c
+index e6117a7ba5..d8f01d1fc3 100644
+--- a/common/board_f.c
++++ b/common/board_f.c
+@@ -17,6 +17,7 @@
+ #include <cpu.h>
+ #include <cpu_func.h>
+ #include <cyclic.h>
++#include <description.h>
+ #include <display_options.h>
+ #include <dm.h>
+ #include <env.h>
+@@ -884,6 +885,9 @@ static const init_fnc_t init_sequence_f[] = {
+ #endif
+ #if defined(CONFIG_DISPLAY_BOARDINFO)
+ 	show_board_info,
++#endif
++#if defined(CONFIG_DESCRIPTION)
++	show_description,
+ #endif
+ 	INIT_FUNC_WATCHDOG_INIT
+ 	misc_init_f,
+diff --git a/common/description.c b/common/description.c
+new file mode 100644
+index 0000000000..06fec1116b
+--- /dev/null
++++ b/common/description.c
+@@ -0,0 +1,11 @@
++#include <common.h>
++#include <description.h>
++
++#if defined(CONFIG_DESCRIPTION)
++int show_description(void) {
++    if(sizeof(CONFIG_DESCRIPTION) > 1)
++        printf("Description: "CONFIG_DESCRIPTION "\n");
++
++    return 0;
++}
++#endif
+\ No newline at end of file
+diff --git a/include/description.h b/include/description.h
+new file mode 100644
+index 0000000000..6216cd8bbf
+--- /dev/null
++++ b/include/description.h
+@@ -0,0 +1 @@
++int show_description(void);
+\ No newline at end of file
