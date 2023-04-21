@@ -48,6 +48,9 @@ WORKDIR /u-boot
 
 RUN git checkout v2023.01
 
+COPY config_description.patch /config_description.patch
+RUN patch -p1 < /config_description.patch
+
 ###############################################################################
 
 FROM u-boot as u-boot-spi
@@ -81,6 +84,7 @@ CONFIG_SPI_FLASH_WINBOND=y
 CONFIG_SPI_FLASH_MTD=y
 CONFIG_ROCKCHIP_SPI=y
 CONFIG_SPL_LZMA=y
+CONFIG_DESCRIPTION="Description Example"
 EOF
 
 RUN cat .config_extra | sed 's|=.*|=|' | xargs -I{} sed -i 's|{}.*||' .config
@@ -145,6 +149,10 @@ RUN BL31=/bl31.elf make CROSS_COMPILE=aarch64-linux-gnu- u-boot.itb
 FROM u-boot as u-boot-qemu
 
 RUN make qemu_arm64_defconfig
+
+RUN <<EOF cat>> .config
+CONFIG_DESCRIPTION="Description Example"
+EOF
 
 RUN make CROSS_COMPILE=aarch64-linux-gnu- -j4
 
